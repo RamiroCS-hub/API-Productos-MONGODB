@@ -12,9 +12,30 @@ const app = express();
 app.set('view', path.join(__dirname, 'views'));
 app.set('view engine', 'ejs');
 
+/* Configuraciones de swagger */
+const swaggerUi = require('swagger-ui-express');
+const swaggerJs = require('swagger-jsdoc');
+const swaggerSpec = {
+  definition: {
+    openapi: 3.0,
+    info: {
+      title: "Express - MongoDB - ProductsAPI",
+      version: "1.0",
+    },
+    servers: [
+      {
+        url: "https://api-productos.up.railway.app/"
+      }
+    ]
+  },
+  apis: [`${path.join(__dirname, 'Routes/*.js')}`]
+}
+
+
 /* Configuraciones de middleware */
 app.use(morgan('dev'));
 app.use(express.json());
+app.use("/", swaggerUi.serve, swaggerUi.setup( swaggerJs( swaggerSpec ) ) );
 
 /* Importación de rutas */
 const getRequest = require('./Routes/getRequest.js');
