@@ -4,9 +4,10 @@ const router = express.Router();
 router.get('/', (req, res) => {
     res.json( { 
         get: '/api/products',
+        getByid: '/api/products/:id',
         post: '/api/make',
-        put: '/api/update',
-        delete: '/api/delete'
+        put: '/api/update/:id',
+        delete: '/api/delete/:id'
     } )
 });
 
