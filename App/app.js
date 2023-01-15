@@ -12,52 +12,46 @@ const app = express();
 app.set('view', path.join(__dirname, 'views'));
 app.set('view engine', 'ejs');
 
-/* Configuraciones de swagger */
-const swaggerUi = require('swagger-ui-express');
-const swaggerJs = require('swagger-jsdoc');
-const swaggerSpec = {
-  definition: {
-    openapi: 3.0,
-    info: {
-      title: "Express - MongoDB - ProductsAPI",
-      version: "1.0",
-    },
-    servers: [
-      {
-        url: "https://api-productos.up.railway.app/"
-      }
-    ]
-  },
-  apis: [`${path.join(__dirname, 'Routes/*.js')}`]
-}
-
-
 /* Configuraciones de middleware */
 app.use(morgan('dev'));
 app.use(express.json());
-app.use("/", swaggerUi.serve, swaggerUi.setup( swaggerJs( swaggerSpec ) ) );
 
 /* Importación de rutas */
 const getRequest = require('./Routes/getRequest.js');
 const createProduct = require('./Routes/createProduct');
 const updateProduct = require('./Routes/updateProduct');
 const deleteProduct = require('./Routes/deleteProduct');
+const apiDocs = require('./Routes/apiDocs');
+
 /*-------------------------- Rutas -------------------------------*/
 
 // app.get("/id/:param",(req,res) => console.log("se hizo una peticion:",req.params))
 /*  READ */
-app.use('/products', getRequest);
+app.use('/api/products', getRequest );
 
 /* CREATE */
-app.use('/make', createProduct);
+app.use('/api/make', createProduct );
 
 /* UPDATE */
-app.use('/update', updateProduct);
+app.use('/api/update', updateProduct );
 
 /* DELETE */
-app.use('/delete', deleteProduct);
+app.use('/api/delete', deleteProduct );
 
-const dbConnection = require('./Database/db');
+/* DOCUMENTACIÓN */
+app.use('/api/docs', apiDocs );
+
+/* DB connection */
+const { dbConnection } = require('./Database/db');
+
+/* Error handling */
+app.use(( req, res, next ) => {
+  res.status(500).json( { 
+    status: 'Server Error', 
+    body: 'Ah ocurrido un error con el servidor, no se ah encontrado la ruta solicitada',
+    redirect: process.env.API_URI,
+  } );
+});
 
 app.listen(process.env.PORT, () =>{
   console.log('Server listening on port:', process.env.PORT);

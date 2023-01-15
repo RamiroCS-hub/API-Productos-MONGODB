@@ -1,52 +1,76 @@
-const productSchema = require('../Models/product');
+const productService = require('../Services/index');
+
+const getAll = (req, res) => {
+  productService.getAll()
+      .then( data => res.send(data) )
+      .catch( err => res.status(404).json ( { 
+        status: 'Not Found', 
+        body: 'No se encontraron productos'
+      } ));
+}
+
+const getByProperty = (req, res) => {
+  let param = req.params.param;
+  const value = req.params.value;
+  
+  switch( param ) {
+    case "name":
+      productService.getByName ( value )
+        .then( data => res.json (data) )
+        .catch( err => res.status(404).send (err) );
+      break;
+
+    case "price":
+      productService.getByPrice ( value )
+        .then( data => res.json (data) )
+        .catch( err => res.status(404).send (err) );
+      break;
+
+    case "cant":
+      productService.getByCant ( value )
+        .then( data  => res.json (data) )
+        .catch( err => res.status(404).send (err) );
+      break;
+
+    default:
+      res.status(404).json( {
+        status: 'Not Found',
+        body: 'No existe ninguna propiedad con ese nombre'
+      } );
+  };
+}
+ 
+const updateProduct = ( req, res ) => {
+  const id = req.params.id;
+  const body = req.body;
+
+  productService.updateProduct( body, id )
+    .then( data => res.json (data) )
+    .catch( err => res.status(404).json ( { 
+      status: 'Not Found', 
+      body: 'No se encontraron productos'
+    } ));
+}
+
+const deleteProduct = ( req, res ) => {
+  const id = req.params.id;
+
+  productService.deleteProduct ( id )
+    .then( data => res.json (data) )
+    .catch( err => res.status(404).json ( { 
+      status: 'Not Found', 
+      body: 'No se encontraron productos'
+    } ));
+
+}
 
 module.exports = {
 
-    getAll: () => {
-        return new Promise( (res, rej) => {
-            productSchema.find()
-            .then( data => res (data))
-            .catch( err => rej (err));
-        });     
-    },
+  getAll: getAll,
 
-    getByCant: (value) => {
-        return new Promise ((res, rej) => {
-            productSchema.find({ cant: { $lte: value } })
-            .then( data => res (data) )
-            .catch( err => rej (data) )
-        });
-    },
-
-    getByName: (value) => {
-        return new Promise ((res, rej) => {
-            productSchema.find({ name: value })
-            .then( data => res(data))
-            .catch( err => rej(data))
-        });
-    },
-
-    getByPrice: (value) => {
-        return new Promise ( (res, rej) => {
-            productSchema.find({ price: { $lte: value } })
-            .then( data => res(data))
-            .catch( err => rej(data))
-        });
-    },
-
-    updateProduct: (body, id) => {
-        return new Promise ((res, rej) => {
-            productSchema.findByIdAndUpdate( id, body, { new:true } )
-            .then( data => res (data) )
-            .catch( err => rej (err) );
-        });
-    },
-    
-    deleteProduct: (id) => {
-        return new Promise ( (res, rej) => {
-            productSchema.findByIdAndDelete( id )
-            .then( data => res (data) )
-            .catch( err => rej (err) );
-        });
-    }
+  getByProperty: getByProperty,
+  
+  updateProduct: updateProduct,
+  
+  deleteProduct: deleteProduct,
 }

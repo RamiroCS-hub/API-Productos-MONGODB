@@ -1,6 +1,6 @@
 const mongoose = require('mongoose');
 
-const connection = (uri) =>{
+const dbConnection = (uri) =>{
   mongoose.set({ strictQuery: true});
 
   mongoose.connect(uri, {useNewUrlParser: true, useUnifiedTopology: true})
@@ -9,4 +9,6 @@ const connection = (uri) =>{
   
 };
 
-module.exports = connection;
+module.exports = { 
+  dbConnection,
+}
